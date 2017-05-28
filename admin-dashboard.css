@@ -1,0 +1,4 @@
+#dashboard_right_now li a.dizebookmark-count::before,
+#dashboard_right_now li span.dizebookmark-count::before {
+  content: "\f103";
+}
