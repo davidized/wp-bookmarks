@@ -14,7 +14,7 @@ class Bookmarks_ToRead_Widget {
     function add_dashboard_widget() {
         wp_add_dashboard_widget(
             'bookmarks_toread_dashboard_widget',
-            __( 'Bookmarks To Read', 'dizebookmarks' ),
+            __( 'Bookmarks To Read', 'bookmarks' ),
             array( $this, 'dashboard_widget_display' )
         );
     }
@@ -29,7 +29,7 @@ class Bookmarks_ToRead_Widget {
                 $posts->the_post();
 
                 echo '<li>';
-                printf( '<a href="%1$s">%2$s</a>', get_post_meta( get_the_ID(), '_dizebookmark_url', true ), get_the_title() );
+                printf( '<a href="%1$s">%2$s</a>', get_post_meta( get_the_ID(), 'bookmark_url', true ), get_the_title() );
                 edit_post_link( '<span class="screen-reader-text">Edit Bookmark</span>', '', '', get_the_ID(), 'dashicons dashicons-edit' );
                 echo '</li>';
 

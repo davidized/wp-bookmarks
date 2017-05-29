@@ -1,11 +1,11 @@
 <?php
 /**
- * Plugin Name: Davidized Bookmarks
+ * Plugin Name: Bookmarks
  * Description: Adds a custom post type for storing bookmarks with tags. Meant to replace my use of Pinboard.in for storing bookmarks.
- * Version: 1.1
+ * Version: 1.2
  * Author: David Williamson
  * Author URI: https://davidized.com/
- * Text Domain: dizebookmarks
+ * Text Domain: bookmarks
  * License: GPL2+
  * License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
  *
@@ -99,7 +99,7 @@ class Bookmarks_Plugin {
 
     private function setup_globals() {
 
-        $this->version = '1.1';
+        $this->version = '1.2';
 
         /** Paths *************************************************************/
         // Base name
@@ -118,9 +118,10 @@ class Bookmarks_Plugin {
 
     private function add_actions() {
 
-            add_action( 'init', array( $this, 'register_post_type' ), 0 );
+            add_action( 'init', array( $this, 'register_post_type' ), 1 );
             add_action( 'init', array( $this, 'register_taxonomy'), 0 );
             add_action( 'init', array( $this, 'register_meta' ), 0 );
+            add_action( 'init', array( $this, 'load_textdomain' ) );
 
             add_action( 'edit_form_after_title', array( $this, 'edit_form_after_title' ), 10, 1 );
             add_action( 'save_post_bookmark', array( $this, 'save_bookmark' ), 10, 3 );
@@ -138,40 +139,44 @@ class Bookmarks_Plugin {
 
     /** Public Methods ********************************************************/
 
+    public function load_textdomain() {
+        load_plugin_textdomain( 'bookmarks' );
+    }
+
     public function register_post_type() {
 
     	$labels = array(
-    		'name'                  => _x( 'Bookmarks', 'Post Type General Name', 'dizebookmarks' ),
-    		'singular_name'         => _x( 'Bookmark', 'Post Type Singular Name', 'dizebookmarks' ),
-    		'menu_name'             => __( 'Bookmarks', 'dizebookmarks' ),
-    		'name_admin_bar'        => __( 'Bookmark', 'dizebookmarks' ),
-    		'archives'              => __( 'Bookmark Archives', 'dizebookmarks' ),
-    		'attributes'            => __( 'Bookmark Attributes', 'dizebookmarks' ),
-    		'parent_item_colon'     => __( 'Parent Bookmark:', 'dizebookmarks' ),
-    		'all_items'             => __( 'All Bookmarks', 'dizebookmarks' ),
-    		'add_new_item'          => __( 'Add New Bookmark', 'dizebookmarks' ),
-    		'add_new'               => __( 'Add New', 'dizebookmarks' ),
-    		'new_item'              => __( 'New Bookmark', 'dizebookmarks' ),
-    		'edit_item'             => __( 'Edit Bookmark', 'dizebookmarks' ),
-    		'update_item'           => __( 'Update Bookmark', 'dizebookmarks' ),
-    		'view_item'             => __( 'View Bookmark', 'dizebookmarks' ),
-    		'view_items'            => __( 'View Bookmarks', 'dizebookmarks' ),
-    		'search_items'          => __( 'Search Bookmark', 'dizebookmarks' ),
-    		'not_found'             => __( 'Not found', 'dizebookmarks' ),
-    		'not_found_in_trash'    => __( 'Not found in Trash', 'dizebookmarks' ),
-    		'featured_image'        => __( 'Featured Image', 'dizebookmarks' ),
-    		'set_featured_image'    => __( 'Set featured image', 'dizebookmarks' ),
-    		'remove_featured_image' => __( 'Remove featured image', 'dizebookmarks' ),
-    		'use_featured_image'    => __( 'Use as featured image', 'dizebookmarks' ),
-    		'insert_into_item'      => __( 'Insert into ', 'dizebookmarks' ),
-    		'uploaded_to_this_item' => __( 'Uploaded to this ', 'dizebookmarks' ),
-    		'items_list'            => __( 'Bookmarks list', 'dizebookmarks' ),
-    		'items_list_navigation' => __( 'Bookmarks list navigation', 'dizebookmarks' ),
-    		'filter_items_list'     => __( 'Filter bookmarks list', 'dizebookmarks' ),
+    		'name'                  => _x( 'Bookmarks', 'Post Type General Name', 'bookmarks' ),
+    		'singular_name'         => _x( 'Bookmark', 'Post Type Singular Name', 'bookmarks' ),
+    		'menu_name'             => __( 'Bookmarks', 'bookmarks' ),
+    		'name_admin_bar'        => __( 'Bookmark', 'bookmarks' ),
+    		'archives'              => __( 'Bookmark Archives', 'bookmarks' ),
+    		'attributes'            => __( 'Bookmark Attributes', 'bookmarks' ),
+    		'parent_item_colon'     => __( 'Parent Bookmark:', 'bookmarks' ),
+    		'all_items'             => __( 'All Bookmarks', 'bookmarks' ),
+    		'add_new_item'          => __( 'Add New Bookmark', 'bookmarks' ),
+    		'add_new'               => __( 'Add New', 'bookmarks' ),
+    		'new_item'              => __( 'New Bookmark', 'bookmarks' ),
+    		'edit_item'             => __( 'Edit Bookmark', 'bookmarks' ),
+    		'update_item'           => __( 'Update Bookmark', 'bookmarks' ),
+    		'view_item'             => __( 'View Bookmark', 'bookmarks' ),
+    		'view_items'            => __( 'View Bookmarks', 'bookmarks' ),
+    		'search_items'          => __( 'Search Bookmark', 'bookmarks' ),
+    		'not_found'             => __( 'Not found', 'bookmarks' ),
+    		'not_found_in_trash'    => __( 'Not found in Trash', 'bookmarks' ),
+    		'featured_image'        => __( 'Featured Image', 'bookmarks' ),
+    		'set_featured_image'    => __( 'Set featured image', 'bookmarks' ),
+    		'remove_featured_image' => __( 'Remove featured image', 'bookmarks' ),
+    		'use_featured_image'    => __( 'Use as featured image', 'bookmarks' ),
+    		'insert_into_item'      => __( 'Insert into ', 'bookmarks' ),
+    		'uploaded_to_this_item' => __( 'Uploaded to this ', 'bookmarks' ),
+    		'items_list'            => __( 'Bookmarks list', 'bookmarks' ),
+    		'items_list_navigation' => __( 'Bookmarks list navigation', 'bookmarks' ),
+    		'filter_items_list'     => __( 'Filter bookmarks list', 'bookmarks' ),
     	);
     	$args = array(
-    		'label'                 => __( 'Bookmark', 'dizebookmarks' ),
-    		'description'           => __( 'Bookmark', 'dizebookmarks' ),
+    		'label'                 => __( 'Bookmark', 'bookmarks' ),
+    		'description'           => __( 'Bookmark', 'bookmarks' ),
     		'labels'                => $labels,
     		'supports'              => array( 'title', 'editor', 'comments' ),
     		'hierarchical'          => false,
@@ -196,27 +201,31 @@ class Bookmarks_Plugin {
     public function register_taxonomy() {
 
     	$labels = array(
-    		'name'                       => _x( 'Tags', 'Taxonomy General Name', 'dizebookmarks' ),
-    		'singular_name'              => _x( 'Tag', 'Taxonomy Singular Name', 'dizebookmarks' ),
-    		'menu_name'                  => __( 'Tags', 'dizebookmarks' ),
-    		'all_items'                  => __( 'All Tags', 'dizebookmarks' ),
-    		'parent_item'                => __( 'Parent Tag', 'dizebookmarks' ),
-    		'parent_item_colon'          => __( 'Parent Tag:', 'dizebookmarks' ),
-    		'new_item_name'              => __( 'New Tag Name', 'dizebookmarks' ),
-    		'add_new_item'               => __( 'Add New Tag', 'dizebookmarks' ),
-    		'edit_item'                  => __( 'Edit Tag', 'dizebookmarks' ),
-    		'update_item'                => __( 'Update Tag', 'dizebookmarks' ),
-    		'view_item'                  => __( 'View Tag', 'dizebookmarks' ),
-    		'separate_items_with_commas' => __( 'Separate Tags with commas', 'dizebookmarks' ),
-    		'add_or_remove_items'        => __( 'Add or remove tags', 'dizebookmarks' ),
-    		'choose_from_most_used'      => __( 'Choose from the most used', 'dizebookmarks' ),
-    		'popular_items'              => __( 'Popular Tags', 'dizebookmarks' ),
-    		'search_items'               => __( 'Search Tags', 'dizebookmarks' ),
-    		'not_found'                  => __( 'Not Found', 'dizebookmarks' ),
-    		'no_terms'                   => __( 'No tags', 'dizebookmarks' ),
-    		'items_list'                 => __( 'Tags list', 'dizebookmarks' ),
-    		'items_list_navigation'      => __( 'Tags list navigation', 'dizebookmarks' ),
+    		'name'                       => _x( 'Bookmark Tags', 'Taxonomy General Name', 'bookmarks' ),
+    		'singular_name'              => _x( 'Tag', 'Taxonomy Singular Name', 'bookmarks' ),
+    		'menu_name'                  => __( 'Tags', 'bookmarks' ),
+    		'all_items'                  => __( 'All Tags', 'bookmarks' ),
+    		'parent_item'                => __( 'Parent Tag', 'bookmarks' ),
+    		'parent_item_colon'          => __( 'Parent Tag:', 'bookmarks' ),
+    		'new_item_name'              => __( 'New Tag Name', 'bookmarks' ),
+    		'add_new_item'               => __( 'Add New Tag', 'bookmarks' ),
+    		'edit_item'                  => __( 'Edit Tag', 'bookmarks' ),
+    		'update_item'                => __( 'Update Tag', 'bookmarks' ),
+    		'view_item'                  => __( 'View Tag', 'bookmarks' ),
+    		'separate_items_with_commas' => __( 'Separate Tags with commas', 'bookmarks' ),
+    		'add_or_remove_items'        => __( 'Add or remove tags', 'bookmarks' ),
+    		'choose_from_most_used'      => __( 'Choose from the most used', 'bookmarks' ),
+    		'popular_items'              => __( 'Popular Tags', 'bookmarks' ),
+    		'search_items'               => __( 'Search Tags', 'bookmarks' ),
+    		'not_found'                  => __( 'Not Found', 'bookmarks' ),
+    		'no_terms'                   => __( 'No tags', 'bookmarks' ),
+    		'items_list'                 => __( 'Tags list', 'bookmarks' ),
+    		'items_list_navigation'      => __( 'Tags list navigation', 'bookmarks' ),
     	);
+        $rewrite = array(
+            'slug'                       => 'bookmarks/tag',
+            'with_front'                 => false,
+        );
     	$args = array(
     		'labels'                     => $labels,
     		'hierarchical'               => false,
@@ -226,6 +235,8 @@ class Bookmarks_Plugin {
     		'show_in_nav_menus'          => true,
     		'show_tagcloud'              => true,
     		'show_in_rest'               => true,
+            'update_count_callback'      => 'wp_update_term_count_now',
+            'rewrite'                    => $rewrite,
     	);
     	register_taxonomy( 'bookmark_tags', array( 'bookmark' ), $args );
 
@@ -234,7 +245,7 @@ class Bookmarks_Plugin {
     public function register_meta() {
         register_meta( 'post', 'bookmark', array(
             'type' => 'string',
-            'description' => __( 'URL for ', 'dizebookmarks' ),
+            'description' => __( 'URL for ', 'bookmarks' ),
             'single' => true,
             'sanitize_callback' => 'esc_url',
             'show_in_rest' => true,
@@ -260,7 +271,7 @@ class Bookmarks_Plugin {
             return;
         $post->post_password = '';
         $visibility = 'private';
-        $visibility_trans = __( 'Private', 'dizebookmarks' );
+        $visibility_trans = __( 'Private', 'bookmarks' );
         ?>
         <script type="text/javascript">
             (function($){
@@ -276,7 +287,7 @@ class Bookmarks_Plugin {
 
     public function edit_form_after_title( $post ) {
 
-        $bookmark_url = get_post_meta( $post->ID, '_dizebookmark_url', true );
+        $bookmark_url = get_post_meta( $post->ID, 'bookmark_url', true );
         $label_class = ! empty( $bookmark_url ) ? 'screen-reader-text' : '';
         ?>
         <div id="dizebookmark_urlwrap">
@@ -298,7 +309,7 @@ class Bookmarks_Plugin {
             return $post_id;
         }
 
-        update_post_meta( $post_id, '_dizebookmark_url', $_POST['dizebookmark_url'] );
+        update_post_meta( $post_id, 'bookmark_url', $_POST['dizebookmark_url'] );
 
     }
 
@@ -313,7 +324,7 @@ class Bookmarks_Plugin {
             $private = intval( $num_posts->private );
             $total = $published + $private;
             $post_type = get_post_type_object( $type );
-            $text = _n( '%s Bookmark', '%s Bookmarks', $total, 'dizebookmarks' );
+            $text = _n( '%s Bookmark', '%s Bookmarks', $total, 'bookmarks' );
             $text = sprintf( $text, number_format_i18n( $total ) );
             if ( current_user_can( $post_type->cap->edit_posts ) ) {
                 $items[] = sprintf( '<span class="bookmark-count">%2$s</span>', $type, $text ) . "\n";
@@ -330,7 +341,7 @@ class Bookmarks_Plugin {
 
         $new_columns = array(
             'cb' => $columns['cb'],
-            'dizebookmark_link' => __( 'Link', 'dizebookmarks' ),
+            'dizebookmark_link' => __( 'Link', 'bookmarks' ),
             'title' => $columns['title'],
             'taxonomy-bookmark_tags' => $columns['taxonomy-bookmark_tags'],
             'comments' => $columns['comments'],
@@ -342,7 +353,7 @@ class Bookmarks_Plugin {
     function custom_column_output( $colname, $cptid ) {
 
         if ( 'dizebookmark_link' == $colname ) {
-            $link_url = get_post_meta( $cptid, '_dizebookmark_url', true );
+            $link_url = get_post_meta( $cptid, 'bookmark_url', true );
             printf( '<a href="%s"><span class="dashicons dashicons-admin-links"></span></a>', $link_url );
         }
     }

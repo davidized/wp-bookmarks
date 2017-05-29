@@ -1,4 +1,4 @@
-=== Davidized Bookmarks ===
+=== Bookmarks ===
 Contributors: davidwilliamson
 Tags: bookmarks, links
 Tested up to: 4.7
@@ -15,11 +15,28 @@ those bookmarks.
 
 === To Do ===
  * Hum URL Shortener prefix for bookmarks
- * Tab order - Title -> URL -> Content
+ * Tab order - Title -> URL -> Content (this is going to require some more JS knowledge)
  * Press This style quick add page
- * Customize Quick Edit to include URL
+ * Customize Quick Edit to include URL (this is harder than I thought)
  * Require URL when creating a bookmark
+ * Modify theme
+    - Frontend posting
+    - Custom templates
+ * Remove dize from things
 
 == Changelog ==
 
-1.0   Initial Release
+=== 1.2 ===
+ * Taxonomy permalinks /bookmarks/tag/blah/
+ * Changed text domain to 'bookmarks' (working to change to 'bookmarks' instead of 'dizebookmarks')
+ * URL is now stored in 'bookmark_url' instead of '_dizebookmark_url' - requires manually updating database (UPDATE `wp_postmeta` SET `meta_key` = 'bookmark_url' WHERE `wp_postmeta`.`meta_key` = '_dizebookmark_url'; )
+
+
+=== 1.1 ===
+ * Added Dashboard widget to display most recent 5 unread bookmarks.
+ * Added link to the admin list screen
+ * Changed CPT to 'bookmark' for simplicity sake
+ * New bookmarks are Private by default
+
+=== 1.0 ===
+ * Initial Release
