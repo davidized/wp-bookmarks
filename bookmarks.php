@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Bookmarks
  * Description: Adds a custom post type for storing bookmarks with tags. Meant to replace my use of Pinboard.in for storing bookmarks.
- * Version: 1.2
+ * Version: 1.3
  * Author: David Williamson
  * Author URI: https://davidized.com/
  * Text Domain: bookmarks
@@ -99,7 +99,7 @@ class Bookmarks_Plugin {
 
     private function setup_globals() {
 
-        $this->version = '1.2';
+        $this->version = '1.3';
 
         /** Paths *************************************************************/
         // Base name
@@ -287,21 +287,25 @@ class Bookmarks_Plugin {
 
     public function edit_form_after_title( $post ) {
 
-        $bookmark_url = get_post_meta( $post->ID, 'bookmark_url', true );
-        $label_class = ! empty( $bookmark_url ) ? 'screen-reader-text' : '';
-        ?>
-        <div id="dizebookmark_urlwrap">
-            <label id="url-prompt-text" class="<?php echo $label_class; ?>" for="url">Enter url here</label>
-            <input id="url" name="dizebookmark_url" id="dizebookmark_url" size="30" value="<?php echo $bookmark_url; ?>" spellcheck="false" autocomplete="off" type="text">
-            <?php wp_nonce_field( 'dizebookmark_save_url', '_dizebookmark_nonce' ); ?>
-        </div>
-        <?php
+        $current_screen = get_current_screen();
+
+        if ( 'bookmark' == $current_screen->post_type ) {
+            $bookmark_url = get_post_meta( $post->ID, 'bookmark_url', true );
+            $label_class = ! empty( $bookmark_url ) ? 'screen-reader-text' : '';
+            ?>
+            <div id="bookmark_urlwrap">
+                <label id="url-prompt-text" class="<?php echo $label_class; ?>" for="url">Enter url here</label>
+                <input id="url" name="bookmark_url" id="bookmark_url" size="30" value="<?php echo $bookmark_url; ?>" spellcheck="false" autocomplete="off" type="text">
+                <?php wp_nonce_field( 'bookmark_save_url', '_bookmark_nonce' ); ?>
+            </div>
+            <?php
+        }
     }
 
     public function save_bookmark( $post_id, $post, $update ) {
 
-        if ( ! isset( $_POST['_dizebookmark_nonce'] )
-            || ! wp_verify_nonce( $_POST['_dizebookmark_nonce'], 'dizebookmark_save_url' ) ) {
+        if ( ! isset( $_POST['_bookmark_nonce'] )
+            || ! wp_verify_nonce( $_POST['_bookmark_nonce'], 'bookmark_save_url' ) ) {
             return $post_id;
         }
 
@@ -309,7 +313,7 @@ class Bookmarks_Plugin {
             return $post_id;
         }
 
-        update_post_meta( $post_id, 'bookmark_url', $_POST['dizebookmark_url'] );
+        update_post_meta( $post_id, 'bookmark_url', $_POST['bookmark_url'] );
 
     }
 
@@ -341,7 +345,7 @@ class Bookmarks_Plugin {
 
         $new_columns = array(
             'cb' => $columns['cb'],
-            'dizebookmark_link' => __( 'Link', 'bookmarks' ),
+            'bookmark_link' => __( 'Link', 'bookmarks' ),
             'title' => $columns['title'],
             'taxonomy-bookmark_tags' => $columns['taxonomy-bookmark_tags'],
             'comments' => $columns['comments'],
@@ -352,7 +356,7 @@ class Bookmarks_Plugin {
 
     function custom_column_output( $colname, $cptid ) {
 
-        if ( 'dizebookmark_link' == $colname ) {
+        if ( 'bookmark_link' == $colname ) {
             $link_url = get_post_meta( $cptid, 'bookmark_url', true );
             printf( '<a href="%s"><span class="dashicons dashicons-admin-links"></span></a>', $link_url );
         }

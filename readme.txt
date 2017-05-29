@@ -26,6 +26,10 @@ those bookmarks.
 
 == Changelog ==
 
+=== 1.3 ===
+ * Fix display of URL field so it only shows up when working on a bookmark (instead of every post)
+ * Some minor CSS fixes
+
 === 1.2 ===
  * Taxonomy permalinks /bookmarks/tag/blah/
  * Changed text domain to 'bookmarks' (working to change to 'bookmarks' instead of 'dizebookmarks')

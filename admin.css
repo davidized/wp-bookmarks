@@ -1,16 +1,17 @@
-#poststuff #dizebookmark_urlwrap {
+#poststuff #bookmark_urlwrap {
   border: 0;
   padding: 0;
+  margin-top: 5px;
 }
 
-#dizebookmark_urlwrap #url-prompt-text {
+#bookmark_urlwrap #url-prompt-text {
   color: #72777c;
   position: absolute;
   font-size: 1.7em;
   padding: 11px 10px;
 }
 
-#dizebookmark_urlwrap #url {
+#bookmark_urlwrap #url {
   padding: 3px 8px;
   font-size: 1.7em;
   line-height: 100%;
@@ -21,7 +22,7 @@
   background-color: #fff;
 }
 
-.column-dizebookmark_link {
+.column-bookmark_link {
   width: 50px;
   text-align: center;
 }
