@@ -14,7 +14,11 @@ WordPress powered site. This plugin creates a custom post type to store
 those bookmarks.
 
 === To Do ===
- * Create an importer for Pinboard bookmarks
+ * Hum URL Shortener prefix for bookmarks
+ * Tab order - Title -> URL -> Content
+ * Press This style quick add page
+ * Customize Quick Edit to include URL
+ * Require URL when creating a bookmark
 
 == Changelog ==
 

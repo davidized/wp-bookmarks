@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Davidized Bookmarks
  * Description: Adds a custom post type for storing bookmarks with tags. Meant to replace my use of Pinboard.in for storing bookmarks.
- * Version: 1.0
+ * Version: 1.1
  * Author: David Williamson
  * Author URI: https://davidized.com/
  * Text Domain: dizebookmarks
@@ -39,6 +39,7 @@ class Bookmarks_Plugin {
         if ( null === $instance ) {
             $instance = new \Davidized\Bookmarks_Plugin;
             $instance->setup_globals();
+            $instance->includes();
             $instance->add_actions();
         }
 
@@ -98,7 +99,7 @@ class Bookmarks_Plugin {
 
     private function setup_globals() {
 
-        $this->version = '1.0';
+        $this->version = '1.1';
 
         /** Paths *************************************************************/
         // Base name
@@ -111,6 +112,10 @@ class Bookmarks_Plugin {
         $this->admin_css        = $this->plugin_dir_url . 'admin.css';
     }
 
+    private function includes() {
+        require_once( $this->plugin_dir . 'includes/class-bookmarks-toread-widget.php' );
+    }
+
     private function add_actions() {
 
             add_action( 'init', array( $this, 'register_post_type' ), 0 );
@@ -118,11 +123,16 @@ class Bookmarks_Plugin {
             add_action( 'init', array( $this, 'register_meta' ), 0 );
 
             add_action( 'edit_form_after_title', array( $this, 'edit_form_after_title' ), 10, 1 );
-            add_action( 'save_post_dizebookmark', array( $this, 'save_bookmark' ), 10, 3 );
+            add_action( 'save_post_bookmark', array( $this, 'save_bookmark' ), 10, 3 );
 
             add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
 
             add_filter( 'dashboard_glance_items', array( $this, 'custom_glance_items' ), 10, 1 );
+
+            add_filter( 'manage_edit-bookmark_columns', array( $this, 'add_list_column' ) );
+            add_action( 'manage_bookmark_posts_custom_column', array( $this, 'custom_column_output' ), 10, 2 );
+
+            add_action( 'post_submitbox_misc_actions' , array( $this, 'change_visibility_metabox_value' ) );
 
     }
 
@@ -153,8 +163,8 @@ class Bookmarks_Plugin {
     		'set_featured_image'    => __( 'Set featured image', 'dizebookmarks' ),
     		'remove_featured_image' => __( 'Remove featured image', 'dizebookmarks' ),
     		'use_featured_image'    => __( 'Use as featured image', 'dizebookmarks' ),
-    		'insert_into_item'      => __( 'Insert into bookmark', 'dizebookmarks' ),
-    		'uploaded_to_this_item' => __( 'Uploaded to this bookmark', 'dizebookmarks' ),
+    		'insert_into_item'      => __( 'Insert into ', 'dizebookmarks' ),
+    		'uploaded_to_this_item' => __( 'Uploaded to this ', 'dizebookmarks' ),
     		'items_list'            => __( 'Bookmarks list', 'dizebookmarks' ),
     		'items_list_navigation' => __( 'Bookmarks list navigation', 'dizebookmarks' ),
     		'filter_items_list'     => __( 'Filter bookmarks list', 'dizebookmarks' ),
@@ -173,13 +183,13 @@ class Bookmarks_Plugin {
     		'show_in_admin_bar'     => true,
     		'show_in_nav_menus'     => true,
     		'can_export'            => true,
-    		'has_archive'           => true,
+    		'has_archive'           => 'bookmarks',
     		'exclude_from_search'   => false,
     		'publicly_queryable'    => true,
     		'capability_type'       => 'post',
     		'show_in_rest'          => true,
     	);
-    	register_post_type( 'dizebookmark', $args );
+    	register_post_type( 'bookmark', $args );
 
     }
 
@@ -217,14 +227,14 @@ class Bookmarks_Plugin {
     		'show_tagcloud'              => true,
     		'show_in_rest'               => true,
     	);
-    	register_taxonomy( 'bookmark_tags', array( 'dizebookmark' ), $args );
+    	register_taxonomy( 'bookmark_tags', array( 'bookmark' ), $args );
 
     }
 
     public function register_meta() {
-        register_meta( 'post', array(
+        register_meta( 'post', 'bookmark', array(
             'type' => 'string',
-            'description' => __( 'URL for bookmark', 'dizebookmarks' ),
+            'description' => __( 'URL for ', 'dizebookmarks' ),
             'single' => true,
             'sanitize_callback' => 'esc_url',
             'show_in_rest' => true,
@@ -235,13 +245,33 @@ class Bookmarks_Plugin {
 
         $current_screen = get_current_screen();
 
-        if ( 'dizebookmark' == $current_screen->post_type ) {
+        if ( 'bookmark' == $current_screen->post_type ) {
             wp_enqueue_script( 'dizebookmarks-admin', $this->plugin_url . 'admin.js', array( 'jquery' ) );
             wp_enqueue_style( 'dizebookmarks-admin', $this->plugin_url . 'admin.css' );
         }
 
         wp_enqueue_style( 'dizebookmarks-admin-dashboard', $this->plugin_url . 'admin-dashboard.css' );
 
+    }
+
+    function change_visibility_metabox_value(){
+        global $post;
+        if ( $post->post_type != 'bookmark' )
+            return;
+        $post->post_password = '';
+        $visibility = 'private';
+        $visibility_trans = __( 'Private', 'dizebookmarks' );
+        ?>
+        <script type="text/javascript">
+            (function($){
+                try {
+                    $('#post-visibility-display').text('<?php echo $visibility_trans; ?>');
+                    $('#hidden-post-visibility').val('<?php echo $visibility; ?>');
+                    $('#visibility-radio-<?php echo $visibility; ?>').attr('checked', true);
+                } catch(err){}
+            }) (jQuery);
+        </script>
+        <?php
     }
 
     public function edit_form_after_title( $post ) {
@@ -251,7 +281,7 @@ class Bookmarks_Plugin {
         ?>
         <div id="dizebookmark_urlwrap">
             <label id="url-prompt-text" class="<?php echo $label_class; ?>" for="url">Enter url here</label>
-            <input id="url" name="dizebookmark_url" size="30" value="<?php echo $bookmark_url; ?>" spellcheck="false" autocomplete="off" type="text">
+            <input id="url" name="dizebookmark_url" id="dizebookmark_url" size="30" value="<?php echo $bookmark_url; ?>" spellcheck="false" autocomplete="off" type="text">
             <?php wp_nonce_field( 'dizebookmark_save_url', '_dizebookmark_nonce' ); ?>
         </div>
         <?php
@@ -274,20 +304,47 @@ class Bookmarks_Plugin {
 
     function custom_glance_items( $items = array() ) {
 
-        $num_posts = wp_count_posts( 'dizebookmark' );
+        $type = 'bookmark';
+
+        $num_posts = wp_count_posts( $type );
 
         if( $num_posts ) {
             $published = intval( $num_posts->publish );
+            $private = intval( $num_posts->private );
+            $total = $published + $private;
             $post_type = get_post_type_object( $type );
-            $text = _n( '%s Bookmark', '%s Bookmarks', $published, 'dizebookmarks' );
-            $text = sprintf( $text, number_format_i18n( $published ) );
+            $text = _n( '%s Bookmark', '%s Bookmarks', $total, 'dizebookmarks' );
+            $text = sprintf( $text, number_format_i18n( $total ) );
             if ( current_user_can( $post_type->cap->edit_posts ) ) {
-                $items[] = sprintf( '<span class="dizebookmark-count">%2$s</span>', $type, $text ) . "\n";
+                $items[] = sprintf( '<span class="bookmark-count">%2$s</span>', $type, $text ) . "\n";
             } else {
-                $items[] = sprintf( '<a href="edit.php?post_type=dizebookmark" class="dizebookmark-count">%s</a>', $text );
+                $items[] = sprintf( '<a href="edit.php?post_type=bookmark" class="bookmark-count">%s</a>', $text );
             }
         }
         return $items;
+    }
+
+    function add_list_column( $columns ) {
+
+        do_action( 'add_debug_info', $columns, 'Columns' );
+
+        $new_columns = array(
+            'cb' => $columns['cb'],
+            'dizebookmark_link' => __( 'Link', 'dizebookmarks' ),
+            'title' => $columns['title'],
+            'taxonomy-bookmark_tags' => $columns['taxonomy-bookmark_tags'],
+            'comments' => $columns['comments'],
+            'date' => $columns['date']
+        );
+        return $new_columns;
+    }
+
+    function custom_column_output( $colname, $cptid ) {
+
+        if ( 'dizebookmark_link' == $colname ) {
+            $link_url = get_post_meta( $cptid, '_dizebookmark_url', true );
+            printf( '<a href="%s"><span class="dashicons dashicons-admin-links"></span></a>', $link_url );
+        }
     }
 
 }
